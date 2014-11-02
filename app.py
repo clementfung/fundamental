@@ -239,7 +239,8 @@ def setNewInvestment():
         "success": True
         })
 
-@app.route('/account/investment/delete', methods=['DELETE'])
+
+@app.route('/account/investment/delete', methods=['POST'])
 def deleteNewInvestment():
     investment_id = request.form['investment_id']
 

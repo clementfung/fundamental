@@ -9,7 +9,9 @@ html {
 
 body { 
 	padding-top: 70px; 
-	font-family: "Trebuchet MS"
+	font-family: "Trebuchet MS";
+	background-image: url('/static/img/background.png');
+	margin-bottom: 200px;
 }
 
 .row {
@@ -37,4 +39,16 @@ body {
 
 .submit-btns {
 	transform: translateY(17%);
+}
+
+.jumbotron p {
+	font-size: 17px;
+}
+
+.jumbotron {
+	border-radius: 60px !important;
+}
+
+.short-btn {
+	width: 200px !important;
 }

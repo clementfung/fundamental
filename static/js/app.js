@@ -27,6 +27,8 @@ app.controller('baseController', ['$scope', '$http', function($scope, $http) {
 	}
 	$scope.savingsChart = {}
 	$scope.chequingsChart = {}
+	$scope.showInvestmentForm = false
+	$scope.newInvestment = {}
 
 	$scope.submitChange = function(value) {
 		// submit settings
@@ -61,6 +63,28 @@ app.controller('baseController', ['$scope', '$http', function($scope, $http) {
 	$scope.discardChanges = function() {
 		$scope.settings = cloneObject($scope.defaultSettings);
 		console.log($scope.settings)
+	}
+
+	$scope.deleteInvestment = function(id) {
+
+		$http.post('/account/investment/delete', {investment_id: id}).
+			success(function(data) {
+				console.log('output: ', data)
+				$scope.getInvestments();
+			})
+	}
+
+	$scope.submitNewInvestment = function() {
+		$scope.newInvestment.venmo_name = "cfung"
+		console.log($scope.newInvestment)
+		$http.post('/account/investment/new', $scope.newInvestment)
+			.success(function(data) {
+				console.log('output: ', data)
+				$scope.getInvestments();
+				$scope.newInvestment = {}
+				$scope.showInvestmentForm = false
+				alert("Create successful!")
+			})
 	}
 
 	$scope.getSettings = function() {
@@ -131,5 +155,14 @@ app.controller('baseController', ['$scope', '$http', function($scope, $http) {
 		})
 	};
 
+	$scope.getInvestments = function() {
+		$http.get('/account/investment/new/cfung').
+			success(function(data) {
+				console.log(data)
+				$scope.investments = data.List
+		})
+	}
+
 	$scope.getChart();
+	$scope.getInvestments();
 }]);
