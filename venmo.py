@@ -19,14 +19,14 @@ def get_access_and_refresh_token(user_token):
             "client_secret": VENMO_CLIENT_SECRET,
             "code": user_token 
             }
-    url = "https://api.venmo.com/v1/oauth/access_token"
+    url = "%s/v1/oauth/access_token" % BASE_URL
     response = requests.post(url, data)
     response_dict = response.json()
     return [response_dict['access_token'], response_dict['refresh_token']]
 
-def post_payment(access_token, vendor_id, note, amount):
+def post_payment(access_token, user_id, note, amount):
     access_token = os.getenv('VENMO_ACCESS_TOKEN') if SANDBOX else access_token
-    user_id = 145434160922624933 if SANDBOX else vendor_id # id for sandbox 
+    user_id = 145434160922624933 if SANDBOX else user_id # id for sandbox 
     note = "A message to accompany the payment." if SANDBOX else note
     amount = 0.10 if SANDBOX else amount
     data = {

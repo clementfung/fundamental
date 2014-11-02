@@ -1,12 +1,16 @@
 import os
 from flask import Flask, render_template, request, jsonify, make_response
 import db
+import venmo
 
 DEBUG = True
 app = Flask(__name__)
 app.config.from_object(__name__)
 
 account_collection_str = "account_info"
+new_investments_str = "new_investments"
+bought_investments_str = "bought_investments"
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.route('/')
@@ -20,7 +24,7 @@ def test():
 
 #### SHARED APIS ######################################
 
-@app.route('/account/info/<venmo_name>')
+@app.route('/account/info/<venmo_name>', methods=['GET'])
 def getAccountInfo(venmo_name):
 
     account_info = db.find_one(account_collection_str, {"user_id" : str(venmo_name)})
@@ -61,7 +65,7 @@ def register():
         "user_token": "u_token",
         "access_token": "a_token",
         "refresh_token": "r_token"
-        });
+        })
     # TODO: Venmo fields are totally sucky
 
     return jsonify(**{
@@ -106,6 +110,12 @@ def withdrawAmount():
             "success": False
             })
     else:
+        print venmo.post_payment(
+            account_info_record['access_token'],
+            venmo_id,
+            'Cash out made',
+            withdraw_amount,
+        ) 
         current_amount = current_amount - withdraw_amount
         account_info.update({"user_id" : venmo_id},
                 {"$set": {"chequing_balance" : current_amount}})
@@ -170,6 +180,39 @@ def transferToSavings():
         "success": True
         })
 
+#### INVESTMENTS ##################################
+
+def addNewInvestment(term, rate):
+
+    new_investments_collection = db.get_collection(new_investments_str)
+    new_investments_collection.insert({
+        "term_length" : term,
+        "rate" : rate,
+        })
+ 
+def addBoughtInvestment(term, rate, end, investment, final):
+        
+    bought_investments_collection = db.get_collection(bought_investments_str)
+    bought_investments_collection.insert({
+        "term_length": term,
+        "rate": rate,
+        "end_date": end,
+        "investment": investment,
+        "final_amount": final
+        })
+
+@app.route('/account/investment/new', methods=['GET'])
+def getNewInvestments(venmo_id):
+
+    new_investments_collection = db.get_collection(new_investments_str)
+    return new_investments_collection.find({"user_id" : venmo_id })
+
+@app.route('/account/investment/current', methods=['GET'])
+def getNewInvestments(venmo_id):
+
+    bought_investments_collection = db.get_collection(bought_investments_str)
+    return bought_investments_collection.find({"user_id" : venmo_id })
+
 
 #### WEB APIS #####################################
 
@@ -188,7 +231,7 @@ def setSavingsInterest():
     else:        
         account_info = db.get_collection(account_collection_str)
         account_info.update({"user_id" : venmo_id}, 
-            {"$set": {"savings_interest_rate": rate}})
+            {"$set": {"savings_interest_rate" : rate}})
     
     return jsonify(**{
         "success": True
