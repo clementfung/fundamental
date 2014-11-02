@@ -1,16 +1,60 @@
 var app = angular.module('funadamental',["angles", "ngAnimate"]);
-
-app.controller('baseController', ['$scope', function($scope) {
+app.config(['$httpProvider', function ($httpProvider) {
+  // Intercept POST requests, convert to standard form encoding
+  $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+  $httpProvider.defaults.transformRequest.unshift(function (data, headersGetter) {
+    var key, result = [];
+    for (key in data) {
+      if (data.hasOwnProperty(key)) {
+        result.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+      }
+    }
+    return result.join("&");
+  });
+}]);
+app.controller('baseController', ['$scope', '$http', function($scope, $http) {
 	$scope.INVERVAL = 7;		// in days
 	$scope.childName = "Curtis";
 	$scope.settings = {};
 	$scope.defaultSettings = {};
 	$scope.savingsBalance = 123;
+	$scope.chequingBalance = 123;
+	$scope.processing = {
+		allowance: false,
+		savingsRate: false,
+		loanRate: false,
+	}
 
-	$scope.submitChange = function() {
+	$scope.submitChange = function(value) {
 		// submit settings
-
-		console.log('saved', $scope.settings)
+		$scope.processing[value] = true
+		var url;
+		switch (value){
+			case 'allowance':
+				url = '/account/set_allowance'
+				break;
+			case 'savingsRate':
+				url = '/account/savings_interest'
+				break;
+			case 'loanRate':
+				url = '/account/loan_interest'
+				break;
+		}
+		var data = {
+				venmo_name: 'cfung',
+				rate: $scope.settings[value]}
+		console.log('sending ', data)
+		$http.post(url, data).
+			success(function(data) {
+				console.log('output: ', data)
+				if (data.success) {
+					$scope.defaultSettings[value] = $scope.settings[value]
+					console.log($scope.defaultSettings)
+					console.log($scope.settings)
+					alert('Change Successful!')
+				}
+				$scope.processing[value] = false
+			})
 	}
 
 	$scope.discardChanges = function() {
@@ -20,16 +64,21 @@ app.controller('baseController', ['$scope', function($scope) {
 
 	$scope.getSettings = function() {
 		// get settings and update $scope.settings
-		return {
-			allowance: 30,
-			savingsRate: 10,
-			loanRate: 20, 
-			hasChanged: false
-		}
+		$http.get('/account/info/cfung').
+			success(function(data) {
+				console.log(data)
+				$scope.childName = data.user_name;
+				$scope.chequingBalance = data.chequing_balance;
+				$scope.savingsBalance = data.savings_balance;
+				$scope.settings.allowance = data.allowance_amount;
+				$scope.settings.savingsRate = data.savings_interest_rate;
+				$scope.settings.loanRate = data.loan_interest_rate;
+
+				$scope.defaultSettings = cloneObject($scope.settings);
+			})
 	}
 
-	$scope.settings = $scope.getSettings();
-	$scope.defaultSettings = cloneObject($scope.settings);
+	$scope.getSettings();
 
 	function cloneObject(obj) {
 	    var clone = {};

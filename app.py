@@ -66,7 +66,7 @@ def register():
     # TODO: Venmo fields are totally sucky
 
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 #### MOBILE APIS ########################################
@@ -80,7 +80,7 @@ def setSavingsAmount():
     # post as long as value is 0
     if savings_amount < 0:    
         return jsonify(**{
-            "success": false
+            "success": False
             })
 
     else:        
@@ -89,7 +89,7 @@ def setSavingsAmount():
             {"$set": {"savings_amount": savings_amount}})
     
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 @app.route('/account/withdraw', methods=['POST'])
@@ -104,7 +104,7 @@ def withdrawAmount():
 
     if (withdraw_amount > current_amount):
         return jsonify(**{
-            "success": false
+            "success": False
             })
     else:
         print venmo.post_payment(
@@ -118,7 +118,7 @@ def withdrawAmount():
                 {"$set": {"chequing_balance" : current_amount}})
 
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 @app.route('/account/transfer_to_chequing', methods=['POST'])
@@ -134,7 +134,7 @@ def transferToChequing():
 
     if (transfer_amount > current_savings):
         return jsonify(**{
-            "success": false
+            "success": False
             })
     else:
         current_savings = current_savings - transfer_amount;
@@ -146,7 +146,7 @@ def transferToChequing():
                     }})
 
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 @app.route('/account/transfer_to_savings', methods=['POST'])
@@ -162,7 +162,7 @@ def transferToSavings():
 
     if (transfer_amount > current_chequing):
         return jsonify(**{
-            "success": false
+            "success": False
             })
     else:
         current_savings = current_savings + transfer_amount;
@@ -174,7 +174,7 @@ def transferToSavings():
                     }})
 
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 
@@ -189,16 +189,16 @@ def setSavingsInterest():
     # post as long as value is 0
     if rate < 0:    
         return jsonify(**{
-            "success": false
+            "success": False
             })
 
     else:        
         account_info = db.get_collection(account_collection_str)
         account_info.update({"user_id" : venmo_id}, 
-            {"$set": {"loan_interest_rate": rate}})
+            {"$set": {"savings_interest_rate": rate}})
     
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 @app.route('/account/loan_interest', methods=['POST'])
@@ -210,7 +210,7 @@ def setLoanInterest():
     # post as long as value is 0
     if rate < 0:    
         return jsonify(**{
-            "success": false
+            "success": False
             })
 
     else:        
@@ -219,7 +219,7 @@ def setLoanInterest():
             {"$set": {"loan_interest_rate": rate}})
     
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 @app.route('/account/set_allowance', methods=['POST'])
@@ -231,7 +231,7 @@ def setAllowance():
     # post as long as value is 0
     if rate < 0:    
         return jsonify(**{
-            "success": false
+            "success": False
             })
 
     else:        
@@ -240,7 +240,7 @@ def setAllowance():
             {"$set": {"allowance_amount": rate}})
     
     return jsonify(**{
-        "success": true
+        "success": True
         })
 
 ### RUNNER ########################################
