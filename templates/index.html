@@ -61,7 +61,7 @@
                     <span class="help-block">This is the amount of allowance set to be transfered to {{childName}} on the first day of the week. An update to allowance will take effect beginning from the next scheduled transfer.</span>
                 </div>
                 <div class="form-group cssSlideUp" ng-show="settings.allowance != defaultSettings.allowance">
-                    <button class="btn btn-primary" ng-click="submitChange()" ng-disabled="allowanceForm.$invalid">Save</button>
+                    <button class="btn btn-primary" ng-click="submitChange('allowance')" ng-disabled="allowanceForm.$invalid">Save</button>
                     <button class="btn btn-default" ng-click="settings.allowance = defaultSettings.allowance">Cancel</button>
                 </div>
             </form>
@@ -86,7 +86,7 @@
                     <span class="help-block">This rate repsents the <strong>annual</strong> interest rate applied to the savings account. Setting a realistic interest rate will encourage your child to start saving and manage their spending habbits.</span>
                 </div>
                 <div class="form-group cssSlideUp" ng-show="settings.savingsRate != defaultSettings.savingsRate">
-                    <button class="btn btn-primary" ng-click="submitChange()" ng-disabled="savingsForm.$invalid">Save</button>
+                    <button class="btn btn-primary" ng-click="submitChange('savingsRate')" ng-disabled="savingsForm.$invalid">Save</button>
                     <button class="btn btn-default" ng-click="settings.savingsRate = defaultSettings.savingsRate">Cancel</button>
                 </div>
             </form>
@@ -111,7 +111,7 @@
                     <span class="help-block">If your child wants to spend more than his/her allowance and savings, they have the choice to take a loan up to the next allowance amount, and decduct that amount from the next transaction. However, to encourage good spending habits, a deduction based on the loan rate will be applied, demonstrating the side effects of taking out a loan.</span>
                 </div>
                 <div class="form-group cssSlideUp" ng-show="settings.loanRate != defaultSettings.loanRate">
-                    <button class="btn btn-primary" ng-click="submitChange()" ng-disabled="loanForm.$invalid">Save</button>
+                    <button class="btn btn-primary" ng-click="submitChange('loanRate')" ng-disabled="loanForm.$invalid">Save</button>
                     <button class="btn btn-default" ng-click="settings.loanRate = defaultSettings.loanRate">Cancel</button>
                 </div>
             </form>
