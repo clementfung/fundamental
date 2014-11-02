@@ -233,7 +233,8 @@ def setNewInvestment():
 
     else:        
         addNewInvestment(venmo_id, name, term_length, rate)
-    
+
+              
     return jsonify(**{
         "success": True
         })
@@ -270,6 +271,9 @@ def setCurrentInvestment():
                             investment_id, 
                             amount,
                             )
+        new_investment_list = db.find(new_investments_str, {"user_id" : venmo_id })
+        current_investment_list = db.find(new_investments_str, {"user_id" : venmo_id })
+
     
     return jsonify(**{
         "success": True
@@ -293,6 +297,7 @@ def getNewInvestments(venmo_id):
 def getCurrentInvestments(venmo_id):
 
     documents = db.find(bought_investments_str, {"user_id" : venmo_id , "is_redeemed" : False})
+
 
     return jsonify(**{
         "List": documents 
