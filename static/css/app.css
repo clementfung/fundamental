@@ -1,0 +1,25 @@
+.temp-value {
+	color: red;
+	font-weight: bold;
+}
+
+body { padding-top: 70px; }
+
+.row {
+	margin-right: 0;
+	margin-left: 0;
+}
+
+.cssSlideUp {
+    opacity: 1;
+}
+
+.cssSlideUp.ng-hide {
+    opacity: 0;
+}
+
+.cssSlideUp.ng-hide-add,
+.cssSlideUp.ng-hide-remove {
+    -webkit-transition: 0.5s linear all;
+    transition: 0.5s linear all;
+}
