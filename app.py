@@ -34,8 +34,9 @@ def getAccountInfo(venmo_name):
          "savings_balance" : account_info['savings_balance'],
          "allowance_amount" : account_info['allowance_amount'],
          "savings_amount" : account_info['savings_amount'],
-         "interest_rate" : account_info['interest_rate']
-        })
+         "savings_interest_rate" : account_info['savings_interest_rate'],
+         "loan_interest_rate" : account_info['loan_interest_rate']
+         })
 
 @app.route('/register')
 def register():
@@ -159,24 +160,43 @@ def transferToSavings():
 def setSavingsInterest():
 
     venmo_id = request.form['venmo_name']
-    savings_interest = request.form['rate']
-    success = 0
+    rate = int(request.form['rate'])
 
+    # post as long as value is 0
+    if rate < 0:    
+        return jsonify(**{
+            "success":1
+            })
+
+    else:        
+        account_info = db.get_collection(account_collection_str)
+        account_info.update({"user_id" : venmo_id}, 
+            {"$set": {"loan_interest_rate": rate}})
+    
     return jsonify(**{
-        "success": success
+        "success": 0
         })
 
 @app.route('/account/loan_interest', methods=['POST'])
 def setLoanInterest():
 
     venmo_id = request.form['venmo_name']
-    loan_interest = request.form['rate']
-    success = 0
+    rate = int(request.form['rate'])
 
+    # post as long as value is 0
+    if rate < 0:    
+        return jsonify(**{
+            "success":1
+            })
+
+    else:        
+        account_info = db.get_collection(account_collection_str)
+        account_info.update({"user_id" : venmo_id}, 
+            {"$set": {"loan_interest_rate": rate}})
+    
     return jsonify(**{
-        "success": success
+        "success": 0
         })
-
 
 ### RUNNER ########################################
 
