@@ -261,8 +261,17 @@ def setCurrentInvestment():
     amount = float(request.form['amount'])
     
     
+    
+
+    account_info = db.find_one(account_collection_str, {"user_id" : str(venmo_id)})
+    current_chequing = float(account_info['chequing_balance'])
+    new_investments_collection = db.get_collection(new_investments_str)
+
+    investment  = new_investments_collection.find_one({'investment_id': investment_id})
+                                                   
+
     # post as long as value is 0
-    if amount < 0:    
+    if amount < 0 or current_chequing < amount or investment['is_purchased'] == True:
         return jsonify(**{
             "success": False
             })
@@ -272,12 +281,20 @@ def setCurrentInvestment():
                             investment_id, 
                             amount,
                             )
-        new_investment_list = db.find(new_investments_str, {"user_id" : venmo_id })
-        current_investment_list = db.find(new_investments_str, {"user_id" : venmo_id })
+        new_chequing_balance = current_chequing - amount
+        account_info = db.get_collection(account_collection_str)
+        account_info.update({"user_id" : venmo_id},
+                {"$set": {"chequing_balance" : new_chequing_balance}})
+
+
+        new_investment_list = db.find(new_investments_str, {"user_id" : venmo_id, "is_purchased": False })
+        current_investment_list = db.find(bought_investments_str, {"user_id" : venmo_id })
 
     
     return jsonify(**{
-        "success": True
+        "chequing_balance": new_chequing_balance,
+        "new_investments" : new_investment_list,
+        "my_investments"  : current_investment_list,
         })
 
 
