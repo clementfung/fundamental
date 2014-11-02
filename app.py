@@ -1,9 +1,16 @@
 import os
-from flask import Flask, make_response, request
+from flask import Flask, render_template, request, jsonify
 import db
 
+DEBUG = True
 app = Flask(__name__)
+<<<<<<< HEAD
+app.config.from_object(__name__)
+
+account_collection_str = "account_info"
+=======
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+>>>>>>> master
 
 @app.route('/')
 def hello():
@@ -12,17 +19,25 @@ def hello():
 @app.route('/api/test')
 def test():
     print 'trying to query database'
-    db.test_connection()
-    print 'test'
-    return 'success'
+    return str(db.test_connection())
 
 #### SHARED APIS ######################################
 
 @app.route('/account/info/<venmo_name>')
 def getAccountInfo(venmo_name):
 
+    account_info = db.find_one(account_collection_str, {"user_id" : str(venmo_name)})
+
+    if account_info is None:
+        return jsonify(**{}) 
+
     return jsonify(**{
-        "sample_field": 0
+         "user_name" : account_info['user_name'],
+         "chequings_balance" : account_info['chequings_balance'],
+         "savings_balance" : account_info['savings_balance'],
+         "allowance_amount" : account_info['allowance_amount'],
+         "savings_amount" : account_info['savings_amount'],
+         "interest_rate" : account_info['interest_rate']
         })
 
 @app.route('/register')
@@ -44,9 +59,20 @@ def register():
 def setSavingsAmount():
 
     venmo_id = request.form['venmo_name']
-    savings_amount = request.form['amount']
+    savings_amount = int(request.form['amount'])
     success = 0
 
+    # post as long as value is 0
+    if savings_amount < 0:    
+        return jsonify(**{
+            "success":1
+            })
+
+    else:        
+        account_info = db.get_collection(account_collection_str)
+        account_info.update({"user_id" : venmo_id}, 
+            {"$set": {"savings_amount": savings_amount}})
+    
     return jsonify(**{
         "success": success
         })
@@ -55,6 +81,30 @@ def setSavingsAmount():
 def withdrawAmount():
 
     venmo_id = request.form['venmo_name']
+    withdraw_amount = int(request.form['amount'])
+
+    account_info = db.get_collection(account_collection_str)
+    account_info_record = account_info.find_one({"user_id" : venmo_id})
+    current_amount = account_info_record['chequings_balance']
+
+    if (withdraw_amount > current_amount):
+        return jsonify(**{
+            "success":1
+            })
+    else:
+        current_amount = current_amount - withdraw_amount
+        account_info.update({"user_id" : venmo_id},
+                {"$set": {"chequings_balance" : current_amount}})
+
+    return jsonify(**{
+        "success": 0
+        })
+
+@app.route('/account/transfer_to', methods=['POST'])
+def transferTo():
+
+    venmo_id = request.form['venmo_name']
+    destination = request.form['destination']
     withdraw_amount = request.form['amount']
     success = 0
 
