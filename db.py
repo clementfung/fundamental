@@ -27,3 +27,12 @@ def test_connection():
 def find_one(coll_name, query):
     coll = get_collection(coll_name)
     return coll.find_one(query)
+
+def find(coll_name, query, sort_arr = []):
+    coll = get_collection(coll_name)
+    documents = coll.find(query, {"_id": 0}) 
+    results = []
+    for doc in documents:
+        results.append(doc)
+
+    return results

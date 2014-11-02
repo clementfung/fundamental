@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, jsonify, make_response
 import db
 import venmo
+import uuid
 
 DEBUG = True
 app = Flask(__name__)
@@ -182,45 +183,76 @@ def transferToSavings():
 
 #### INVESTMENTS ##################################
 
-def addNewInvestment(name, term, rate):
+def addNewInvestment(venmo_id, name, term, rate):
 
     new_investments_collection = db.get_collection(new_investments_str)
+    investment_id = str(uuid.uuid4())
     new_investments_collection.insert({
+        "user_id": venmo_id,
+        "name": name,
         "term_length" : term,
         "rate" : rate,
+        "investment_id": investment_id,
+        "is_purchased": False,
         })
  
-def addBoughtInvestment(name, term, rate, end, investment, final):
-        
+def addBoughtInvestment(investment_id, name, amount, end_date, final_amount):
+    new_investments_collection = db.get_collection(new_investments_str)
+
+    investment = new_investments_collection.update({'investment_id': investment_id},
+                                                   {"$set": {"is_purchased" : True}})
     bought_investments_collection = db.get_collection(bought_investments_str)
     bought_investments_collection.insert({
         "name" : name,
         "term_length": term,
         "rate": rate,
-        "end_date": end,
+        "end_date": end_date,
         "investment": investment,
         "final_amount": final,
         "is_redeemed": False,
+        "investment_id": investment_id,
         })
 
-@app.route('/account/investment/new', methods=['GET'])
+@app.route('/account/investment/new', methods=['POST'])
+def setnewInvestment():
+    venmo_id = request.form['venmo_name']
+    rate = float(request.form['rate'])
+    name = request.form['name']
+    term_length = int(request.form['term_length'])
+    
+    # post as long as value is 0
+    if rate < 0:    
+        return jsonify(**{
+            "success": False
+            })
+
+    else:        
+        addNewInvestment(venmo_id, name, term_length, rate)
+    
+    return jsonify(**{
+        "success": True
+        })
+
+
+
+
+
+@app.route('/account/investment/new/<venmo_id>', methods=['GET'])
 def getNewInvestments(venmo_id):
 
-    new_investments_collection = db.get_collection(new_investments_str)
-    return new_investments_collection.find({"user_id" : venmo_id })
+    documents = db.find(new_investments_str, {"user_id" : venmo_id })
 
+    return jsonify(**{
+        "List": documents 
+        })
+     
 @app.route('/account/investment/current/<venmo_id>', methods=['GET'])
 def getCurrentInvestments(venmo_id):
 
-    bought_investments_collection = db.get_collection(bought_investments_str)
-    documents = bought_investments_collection.find({"user_id" : venmo_id , "is_redeemed" : False})
-    current_investments = []
-    import pymongo
-    for doc in documents.sort('end_date', pymongo.ASCENDING):
-        current_investments.append(doc)
+    documents = db.find(bought_investments_str, {"user_id" : venmo_id , "is_redeemed" : False})
 
     return jsonify(**{
-        "List": current_investments
+        "List": documents 
         })
         
 
