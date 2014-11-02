@@ -45,10 +45,27 @@ def register():
     name = request.form['user_name']
     p_venmo_id = request.form['parent_venmo_name']
     p_name = request.form['parent_name']
-    success = 0
+
+    account_collection = db.get_collection(account_collection_str)
+    account_collection.insert({
+        "user_id" : venmo_id,
+        "user_name" : name,
+        "chequing_balance" : 0,
+        "savings_balance" : 0,
+        "parent_id" : p_venmo_id,
+        "parent_name" : p_name,
+        "allowance_amount" : 0,
+        "savings_amount" : 0,
+        "savings_interest_rate" : 0, 
+        "loan_interest_rate" : 0,
+        "user_token": "u_token",
+        "access_token": "a_token",
+        "refresh_token": "r_token"
+        });
+    # TODO: Venmo fields are totally sucky
 
     return jsonify(**{
-        "success": success
+        "success": 0
         })
 
 #### MOBILE APIS ########################################
@@ -57,7 +74,7 @@ def register():
 def setSavingsAmount():
 
     venmo_id = request.form['venmo_name']
-    savings_amount = int(request.form['amount'])
+    savings_amount = float(request.form['amount'])
 
     # post as long as value is 0
     if savings_amount < 0:    
@@ -78,7 +95,7 @@ def setSavingsAmount():
 def withdrawAmount():
 
     venmo_id = request.form['venmo_name']
-    withdraw_amount = int(request.form['amount'])
+    withdraw_amount = float(request.form['amount'])
 
     account_info = db.get_collection(account_collection_str)
     account_info_record = account_info.find_one({"user_id" : venmo_id})
@@ -101,7 +118,7 @@ def withdrawAmount():
 def transferToChequing():
 
     venmo_id = request.form['venmo_name']
-    transfer_amount = int(request.form['amount'])
+    transfer_amount = float(request.form['amount'])
 
     account_info = db.get_collection(account_collection_str)
     account_info_record = account_info.find_one({"user_id" : venmo_id})
@@ -129,7 +146,7 @@ def transferToChequing():
 def transferToSavings():
 
     venmo_id = request.form['venmo_name']
-    transfer_amount = int(request.form['amount'])
+    transfer_amount = float(request.form['amount'])
 
     account_info = db.get_collection(account_collection_str)
     account_info_record = account_info.find_one({"user_id" : venmo_id})
@@ -160,7 +177,7 @@ def transferToSavings():
 def setSavingsInterest():
 
     venmo_id = request.form['venmo_name']
-    rate = int(request.form['rate'])
+    rate = float(request.form['rate'])
 
     # post as long as value is 0
     if rate < 0:    
@@ -181,7 +198,7 @@ def setSavingsInterest():
 def setLoanInterest():
 
     venmo_id = request.form['venmo_name']
-    rate = int(request.form['rate'])
+    rate = float(request.form['rate'])
 
     # post as long as value is 0
     if rate < 0:    
@@ -193,6 +210,27 @@ def setLoanInterest():
         account_info = db.get_collection(account_collection_str)
         account_info.update({"user_id" : venmo_id}, 
             {"$set": {"loan_interest_rate": rate}})
+    
+    return jsonify(**{
+        "success": 0
+        })
+
+@app.route('/account/set_allowance', methods=['POST'])
+def setAllowance():
+
+    venmo_id = request.form['venmo_name']
+    rate = float(request.form['rate'])
+
+    # post as long as value is 0
+    if rate < 0:    
+        return jsonify(**{
+            "success":1
+            })
+
+    else:        
+        account_info = db.get_collection(account_collection_str)
+        account_info.update({"user_id" : venmo_id}, 
+            {"$set": {"allowance_amount": rate}})
     
     return jsonify(**{
         "success": 0
