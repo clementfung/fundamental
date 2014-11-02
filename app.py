@@ -182,7 +182,7 @@ def transferToSavings():
 
 #### INVESTMENTS ##################################
 
-def addNewInvestment(term, rate):
+def addNewInvestment(name, term, rate):
 
     new_investments_collection = db.get_collection(new_investments_str)
     new_investments_collection.insert({
@@ -190,15 +190,17 @@ def addNewInvestment(term, rate):
         "rate" : rate,
         })
  
-def addBoughtInvestment(term, rate, end, investment, final):
+def addBoughtInvestment(name, term, rate, end, investment, final):
         
     bought_investments_collection = db.get_collection(bought_investments_str)
     bought_investments_collection.insert({
+        "name" : name,
         "term_length": term,
         "rate": rate,
         "end_date": end,
         "investment": investment,
-        "final_amount": final
+        "final_amount": final,
+        "is_redeemed": False,
         })
 
 @app.route('/account/investment/new', methods=['GET'])
@@ -207,11 +209,20 @@ def getNewInvestments(venmo_id):
     new_investments_collection = db.get_collection(new_investments_str)
     return new_investments_collection.find({"user_id" : venmo_id })
 
-@app.route('/account/investment/current', methods=['GET'])
-def getNewInvestments(venmo_id):
+@app.route('/account/investment/current/<venmo_id>', methods=['GET'])
+def getCurrentInvestments(venmo_id):
 
     bought_investments_collection = db.get_collection(bought_investments_str)
-    return bought_investments_collection.find({"user_id" : venmo_id })
+    documents = bought_investments_collection.find({"user_id" : venmo_id , "is_redeemed" : False})
+    current_investments = []
+    import pymongo
+    for doc in documents.sort('end_date', pymongo.ASCENDING):
+        current_investments.append(doc)
+
+    return jsonify(**{
+        "List": current_investments
+        })
+        
 
 
 #### WEB APIS #####################################
