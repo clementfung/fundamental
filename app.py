@@ -236,6 +236,20 @@ def setNewInvestment():
         "success": True
         })
 
+@app.route('/account/investment/new', methods=['DELETE'])
+def deleteNewInvestment():
+    investment_id = request.form['investment_id']
+
+    new_investments_collection = db.get_collection(new_investments_str)
+
+    new_investments_collection.remove({'investment_id': investment_id})
+
+    return jsonify(**{
+            "success": True
+            })
+
+
+
 @app.route('/account/investment/current', methods=['POST'])
 def setCurrentInvestment():
     venmo_id = request.form['venmo_name']
