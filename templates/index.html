@@ -34,14 +34,14 @@
         <div class="row">
             <div class="jumbotron">
                 <h2>Welcome to the parent's dashboard!</h2>
-                <p>Thanks for choosing fundamental for your child's education in personal finance. In this dashboard, you can view your child's account history for savings and chequing. You can view/change their weekly allowance, saving rate and loan rate. Finally, you add custom investments opportunities to futher enhance your child's learning experience.</p>
+                <p>Thanks for choosing fundamental for your child's personal finance education. On this dashboard, you can view your child's savings balance, chequing balance and account history. You can view/change their weekly allowance, savings interest and loan interest. Finally, you add custom investment opportunities to futher enhance your child's learning experience.</p>
             </div>
             <div class="page-header">
                 <h1>{{childName}}</h1>
             </div>
             <p> </p>
             <h3>Accounts</h3>
-            <ul>
+            <ul>ß
                 <li><h4>Current Savings Balance: <span style="color: green">{{savingsBalance | currency}}</span></h4></li>
                 <li>
                     <h4>Savings Balance History:</h4>
@@ -68,7 +68,7 @@
                             <button class="btn btn-default" ng-click="settings.allowance = defaultSettings.allowance">Cancel</button>
                         </div>
                     </div>
-                    <span class="help-block">This is the amount of allowance set to be transfered to {{childName}} on the first day of the week. An update to allowance will take effect beginning from the next scheduled transfer.</span>
+                    <span class="help-block">This is the allowance amount to be transfered to {{childName}} on the first day of the week. An update to allowance will take effect beginning from the next scheduled transfer.</span>
                 </div>
             </form>
             <form name="savingsForm">
@@ -92,7 +92,7 @@
                             <button class="btn btn-default" ng-click="settings.savingsRate = defaultSettings.savingsRate">Cancel</button>
                         </div>
                     </div>
-                    <span class="help-block">This rate repsents the <strong>annual</strong> interest rate applied to the savings account. Setting a realistic interest rate will encourage your child to start saving and manage their spending habbits.</span>
+                    <span class="help-block">This rate repsents the <strong>annual</strong> interest rate applied to the savings account. Setting a realistic interest rate will encourage your child to start saving and manage their spending habits.</span>
                 </div>
             </form>
             <form name="loanForm">
@@ -116,7 +116,7 @@
                             <button class="btn btn-default" ng-click="settings.loanRate = defaultSettings.loanRate">Cancel</button>
                         </div>
                     </div>
-                    <span class="help-block">If your child wants to spend more than his/her allowance and savings, they have the choice to take a loan up to the next allowance amount, and decduct that amount from the next transaction. However, to encourage good spending habits, a deduction based on the loan rate will be applied, demonstrating the side effects of taking out a loan.</span>
+                    <span class="help-block">If your child wants to spend more than his/her allowance and savings, they have the choice to take a loan. Loans will cause your child to go into debt. An interest rate can be applied on loans, demonstrating to your child the negative long term effects of taking out a loan.</span>
                 </div>
             </form>
         </div>
@@ -127,7 +127,8 @@
                 <span ng-if="!showInvestmentForm">New Investment</span>
                 <span ng-if="showInvestmentForm">Cancel</span>
             </button>
-            <table class="table table-bordered table-hover" ng-if="investments.length != 0">
+            <span class="help-block">Create additional learning opportunities for your child through investment options. This will teach your child about the time value of money and encourage them to save early and often!</span>
+            <table class="table table-bordered table-hover" ng-if="investments.length != 0 || showInvestmentForm">
                 <tr>
                     <th>Investment Name</th>
                     <th>Rate</th>
@@ -164,7 +165,7 @@
                     <td><button class="btn btn-danger" ng-click="deleteInvestment(investment.investment_id)" ng-disabled="investment.is_purchased"><span class="glyphicon glyphicon-trash"></span> Delete</button></td>
                 </tr>
             </table>
-            <p ng-if="investments.length == 0">No investments avaliable.</p>
+            <p ng-if="investments.length == 0 && !showInvestmentForm">No investments avaliable.</p>
         </div>
     </div>
   </body>
