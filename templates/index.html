@@ -160,7 +160,7 @@
                 <tr ng-repeat="investment in investments">
                     <td>{{investment.name}}<dth>
                     <td>{{investment.rate}}%</td>
-                    <td>{{investment.term_length/7 | number:0}} Weeks</td>
+                    <td>{{investment.term_length/7 | number:0}} months</td>
                     <td>
                         <span ng-if="!investment.is_purchased">Not </span>Purchased
                     </td>
