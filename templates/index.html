@@ -35,19 +35,18 @@
             <div class="page-header">
                 <h1>Parent Dashboard <small>for your child {{childName}}</small></h1>
             </div>
-            <h3>{{childName}}'s Savings</h3>
+            <h3>{{childName}}'s Accounts</h3>
             <ul>
                 <li><h4>Current Balance: <span style="color: green">{{savingsBalance | currency}}</span></h4></li>
                 <li>
-                    <h4>Balance History:</h4>
-                    <canvas linechart options="options" data="chart" width="700" height="200"></canvas>
+                    <h4>Savings Balance History:</h4>
+                    <canvas class="cssSlideUp" linechart options="options" data="savingsChart" width="700" height="200" ng-hide="savingsChart == {}"></canvas>
                 </li>
                 <li>
-                    <h4>Total Amount Earned From Savings:</h4>
-                    <canvas linechart options="options" data="chart" width="700" height="200"></canvas>
+                    <h4>Chequings Balance History:</h4>
+                    <canvas class="cssSlideUp" linechart options="options" data="chequingsChart" width="700" height="200" ng-hide="chequingsChart == {}"></canvas>
                 </li>
             </ul>
-            
             <hr />
             <form name="allowanceForm">
                 <div class="form-group">
@@ -57,15 +56,14 @@
                             <div class="input-group-addon">$</div>
                             <input type="number" class="form-control input-lg" id="allowance" placeholder="10.00" ng-model="settings.allowance" min="0">
                         </div>
+                        <div class="submit-btns cssSlideUp col-sm-2" ng-show="settings.allowance != defaultSettings.allowance">
+                            <button class="btn btn-primary" ng-click="submitChange('allowance')" ng-disabled="allowanceForm.$invalid">Save</button>
+                            <button class="btn btn-default" ng-click="settings.allowance = defaultSettings.allowance">Cancel</button>
+                        </div>
                     </div>
                     <span class="help-block">This is the amount of allowance set to be transfered to {{childName}} on the first day of the week. An update to allowance will take effect beginning from the next scheduled transfer.</span>
                 </div>
-                <div class="form-group cssSlideUp" ng-show="settings.allowance != defaultSettings.allowance">
-                    <button class="btn btn-primary" ng-click="submitChange('allowance')" ng-disabled="allowanceForm.$invalid">Save</button>
-                    <button class="btn btn-default" ng-click="settings.allowance = defaultSettings.allowance">Cancel</button>
-                </div>
             </form>
-            <hr />
             <form name="savingsForm">
                 <div class="form-group">
                     <h3 for="savingsRate">Savings Interest Rate</h3>
@@ -82,23 +80,22 @@
                             <input type="number" class="form-control input-lg" id="savingsRate" placeholder="10" ng-model="settings.savingsRate" min="0" max="100">
                             <div class="input-group-addon">%</div>
                         </div>
+                        <div class="submit-btns cssSlideUp col-sm-2" ng-show="settings.savingsRate != defaultSettings.savingsRate">
+                            <button class="btn btn-primary" ng-click="submitChange('savingsRate')" ng-disabled="savingsForm.$invalid">Save</button>
+                            <button class="btn btn-default" ng-click="settings.savingsRate = defaultSettings.savingsRate">Cancel</button>
+                        </div>
                     </div>
                     <span class="help-block">This rate repsents the <strong>annual</strong> interest rate applied to the savings account. Setting a realistic interest rate will encourage your child to start saving and manage their spending habbits.</span>
                 </div>
-                <div class="form-group cssSlideUp" ng-show="settings.savingsRate != defaultSettings.savingsRate">
-                    <button class="btn btn-primary" ng-click="submitChange('savingsRate')" ng-disabled="savingsForm.$invalid">Save</button>
-                    <button class="btn btn-default" ng-click="settings.savingsRate = defaultSettings.savingsRate">Cancel</button>
-                </div>
             </form>
-            <hr />
             <form name="loanForm">
                 <div class="form-group">
                     <h3 for="loanRate">Loan Deduction Rate</h3>
                     <ul>
                         <li>
                             <h4>
-                                <span ng-if="settings.loanRate == defaultSettings.loanRate">Max Loan</span> 
-                                <span style="color:red" ng-if="settings.loanRate != defaultSettings.loanRate">New Max Loan</span>: <span style="color: green">{{settings.allowance * (1 - settings.loanRate/100) | currency}}</span>
+                                <span ng-if="settings.loanRate == defaultSettings.loanRate && settings.allowance == defaultSettings.allowance">Max Loan</span> 
+                                <span style="color:red" ng-if="settings.loanRate != defaultSettings.loanRate || settings.allowance != defaultSettings.allowance">New Max Loan</span>: <span style="color: green">{{settings.allowance * (1 - settings.loanRate/100) | currency}}</span>
                             </h4>
                         </li>
                     </ul>
@@ -107,12 +104,12 @@
                             <input type="number" class="form-control input-lg" id="loanRate" placeholder="20" ng-model="settings.loanRate" min="0" max="100">
                             <div class="input-group-addon">%</div>
                         </div>
+                        <div class="submit-btns cssSlideUp col-sm-2" ng-show="settings.loanRate != defaultSettings.loanRate">
+                            <button class="btn btn-primary" ng-click="submitChange('loanRate')" ng-disabled="loanForm.$invalid">Save</button>
+                            <button class="btn btn-default" ng-click="settings.loanRate = defaultSettings.loanRate">Cancel</button>
+                        </div>
                     </div>
                     <span class="help-block">If your child wants to spend more than his/her allowance and savings, they have the choice to take a loan up to the next allowance amount, and decduct that amount from the next transaction. However, to encourage good spending habits, a deduction based on the loan rate will be applied, demonstrating the side effects of taking out a loan.</span>
-                </div>
-                <div class="form-group cssSlideUp" ng-show="settings.loanRate != defaultSettings.loanRate">
-                    <button class="btn btn-primary" ng-click="submitChange('loanRate')" ng-disabled="loanForm.$invalid">Save</button>
-                    <button class="btn btn-default" ng-click="settings.loanRate = defaultSettings.loanRate">Cancel</button>
                 </div>
             </form>
         </div>
