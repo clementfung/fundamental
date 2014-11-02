@@ -4,13 +4,10 @@ import db
 
 DEBUG = True
 app = Flask(__name__)
-<<<<<<< HEAD
 app.config.from_object(__name__)
 
 account_collection_str = "account_info"
-=======
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
->>>>>>> master
 
 @app.route('/')
 def hello():
@@ -33,7 +30,7 @@ def getAccountInfo(venmo_name):
 
     return jsonify(**{
          "user_name" : account_info['user_name'],
-         "chequings_balance" : account_info['chequings_balance'],
+         "chequing_balance" : account_info['chequing_balance'],
          "savings_balance" : account_info['savings_balance'],
          "allowance_amount" : account_info['allowance_amount'],
          "savings_amount" : account_info['savings_amount'],
@@ -60,7 +57,6 @@ def setSavingsAmount():
 
     venmo_id = request.form['venmo_name']
     savings_amount = int(request.form['amount'])
-    success = 0
 
     # post as long as value is 0
     if savings_amount < 0:    
@@ -74,7 +70,7 @@ def setSavingsAmount():
             {"$set": {"savings_amount": savings_amount}})
     
     return jsonify(**{
-        "success": success
+        "success": 0
         })
 
 @app.route('/account/withdraw', methods=['POST'])
@@ -85,7 +81,7 @@ def withdrawAmount():
 
     account_info = db.get_collection(account_collection_str)
     account_info_record = account_info.find_one({"user_id" : venmo_id})
-    current_amount = account_info_record['chequings_balance']
+    current_amount = account_info_record['chequing_balance']
 
     if (withdraw_amount > current_amount):
         return jsonify(**{
@@ -94,23 +90,68 @@ def withdrawAmount():
     else:
         current_amount = current_amount - withdraw_amount
         account_info.update({"user_id" : venmo_id},
-                {"$set": {"chequings_balance" : current_amount}})
+                {"$set": {"chequing_balance" : current_amount}})
 
     return jsonify(**{
         "success": 0
         })
 
-@app.route('/account/transfer_to', methods=['POST'])
-def transferTo():
+@app.route('/account/transfer_to_chequing', methods=['POST'])
+def transferToChequing():
 
     venmo_id = request.form['venmo_name']
-    destination = request.form['destination']
-    withdraw_amount = request.form['amount']
-    success = 0
+    transfer_amount = int(request.form['amount'])
+
+    account_info = db.get_collection(account_collection_str)
+    account_info_record = account_info.find_one({"user_id" : venmo_id})
+    current_chequing = account_info_record['chequing_balance']
+    current_savings = account_info_record['savings_balance']
+
+    if (transfer_amount > current_savings):
+        return jsonify(**{
+            "success": 1
+            })
+    else:
+        current_savings = current_savings - transfer_amount;
+        current_chequing = current_chequing + transfer_amount;
+        account_info.update({"user_id" : venmo_id},
+                {"$set": {
+                    "chequing_balance" : current_chequing,
+                    "savings_balance" : current_savings
+                    }})
 
     return jsonify(**{
-        "success": success
+        "success": 0
         })
+
+@app.route('/account/transfer_to_savings', methods=['POST'])
+def transferToSavings():
+
+    venmo_id = request.form['venmo_name']
+    transfer_amount = int(request.form['amount'])
+
+    account_info = db.get_collection(account_collection_str)
+    account_info_record = account_info.find_one({"user_id" : venmo_id})
+    current_chequing = account_info_record['chequing_balance']
+    current_savings = account_info_record['savings_balance']
+
+    if (transfer_amount > current_chequing):
+        return jsonify(**{
+            "success": 1
+            })
+    else:
+        current_savings = current_savings + transfer_amount;
+        current_chequing = current_chequing - transfer_amount;
+        account_info.update({"user_id" : venmo_id},
+                {"$set": {
+                    "chequing_balance" : current_chequing,
+                    "savings_balance" : current_savings
+                    }})
+
+    return jsonify(**{
+        "success": 0
+        })
+
 
 #### WEB APIS #####################################
 
