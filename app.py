@@ -4,13 +4,17 @@ import db
 
 DEBUG = True
 app = Flask(__name__)
+<<<<<<< HEAD
 app.config.from_object(__name__)
 
 account_collection_str = "account_info"
+=======
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+>>>>>>> master
 
 @app.route('/')
 def hello():
-    return render_template('index.html')
+    return make_response(open('%s/templates/index.html' % BASE_DIR).read())
 
 @app.route('/api/test')
 def test():
