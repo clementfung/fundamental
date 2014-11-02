@@ -38,6 +38,7 @@ def getAccountInfo(venmo_name):
          "chequing_balance" : account_info['chequing_balance'],
          "savings_balance" : account_info['savings_balance'],
          "allowance_amount" : account_info['allowance_amount'],
+         "debt_amount" : account_info['debt_amount'],
          "savings_amount" : account_info['savings_amount'],
          "savings_interest_rate" : account_info['savings_interest_rate'],
          "loan_interest_rate" : account_info['loan_interest_rate']
@@ -62,6 +63,7 @@ def register():
         "allowance_amount" : 0,
         "savings_amount" : 0,
         "savings_interest_rate" : 0, 
+        "debt_amount" : 0,
         "loan_interest_rate" : 0,
         "user_token": "u_token",
         "access_token": "a_token",
@@ -123,6 +125,63 @@ def withdrawAmount():
 
     return jsonify(**{
         "success": True
+        })
+
+@app.route('/account/take_loan', methods=['POST'])
+def takeLoan():
+
+    venmo_id = request.form['venmo_name']
+    loan_amount = float(request.form['amount'])
+
+    account_info = db.get_collection(account_collection_str)
+    account_info_record = account_info.find_one({"user_id" : venmo_id})
+    current_chequing = account_info_record['chequing_balance']
+    current_debt = account_info_record['debt_amount']
+
+    if (loan_amount < 0):
+        return jsonify(**{
+            "success": False
+            })
+
+    current_chequing += loan_amount;
+    current_debt += loan_amount; 
+    account_info.update({"user_id" : venmo_id},
+            {"$set": {
+                "chequing_balance" : current_chequing,
+                "debt_amount" : current_debt
+                }})
+
+    return jsonify(**{
+        "success" : True
+        })
+
+@app.route('/account/pay_loan', methods=['POST'])
+def payLoan():
+
+    venmo_id = request.form['venmo_name']
+    payment_amount = float(request.form['amount'])
+
+    account_info = db.get_collection(account_collection_str)
+    account_info_record = account_info.find_one({"user_id" : venmo_id})
+    current_chequing = account_info_record['chequing_balance']
+    current_debt = account_info_record['debt_amount']
+
+    # Need to be careful to maintain good state
+    if (payment_amount < 0 or payment_amount > current_chequing or payment_amount > current_debt):
+        return jsonify(**{
+            "success": False
+            })
+
+    current_chequing -= payment_amount;
+    current_debt -= payment_amount; 
+    account_info.update({"user_id" : venmo_id},
+            {"$set": {
+                "chequing_balance" : current_chequing,
+                "debt_amount" : current_debt
+                }})
+
+    return jsonify(**{
+        "success" : True
         })
 
 @app.route('/account/transfer_to_chequing', methods=['POST'])
@@ -258,18 +317,14 @@ def deleteNewInvestment():
 def setCurrentInvestment():
     venmo_id = request.form['venmo_name']
     investment_id = request.form['investment_id']
-    amount = float(request.form['amount'])
-    
-    
-    
+    amount = float(request.form['amount']) 
 
     account_info = db.find_one(account_collection_str, {"user_id" : str(venmo_id)})
     current_chequing = float(account_info['chequing_balance'])
     new_investments_collection = db.get_collection(new_investments_str)
 
     investment  = new_investments_collection.find_one({'investment_id': investment_id})
-                                                   
-
+                                                
     # post as long as value is 0
     if amount < 0 or current_chequing < amount or investment['is_purchased'] == True:
         return jsonify(**{
@@ -297,11 +352,6 @@ def setCurrentInvestment():
         "my_investments"  : current_investment_list,
         })
 
-
-
-
-
-
 @app.route('/account/investment/new/<venmo_id>', methods=['GET'])
 def getNewInvestments(venmo_id):
 
@@ -320,8 +370,7 @@ def getCurrentInvestments(venmo_id):
     return jsonify(**{
         "List": documents 
         })
-        
-
+    
 
 #### WEB APIS #####################################
 
