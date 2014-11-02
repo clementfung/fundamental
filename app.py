@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify, make_response
 import db
+import venmo
 
 DEBUG = True
 app = Flask(__name__)
@@ -106,6 +107,12 @@ def withdrawAmount():
             "success": false
             })
     else:
+        print venmo.post_payment(
+            account_info_record['access_token'],
+            venmo_id,
+            'Cash out made',
+            withdraw_amount,
+        ) 
         current_amount = current_amount - withdraw_amount
         account_info.update({"user_id" : venmo_id},
                 {"$set": {"chequing_balance" : current_amount}})
