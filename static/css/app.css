@@ -3,7 +3,14 @@
 	font-weight: bold;
 }
 
-body { padding-top: 70px; }
+html {
+	font-size: 25px;
+}
+
+body { 
+	padding-top: 70px; 
+	font-family: "Trebuchet MS"
+}
 
 .row {
 	margin-right: 0;
@@ -22,4 +29,12 @@ body { padding-top: 70px; }
 .cssSlideUp.ng-hide-remove {
     -webkit-transition: 0.5s linear all;
     transition: 0.5s linear all;
+}
+
+.input-group {
+	float:left !important;
+}
+
+.submit-btns {
+	transform: translateY(17%);
 }

@@ -12,18 +12,21 @@ app.config(['$httpProvider', function ($httpProvider) {
     return result.join("&");
   });
 }]);
+
 app.controller('baseController', ['$scope', '$http', function($scope, $http) {
 	$scope.INVERVAL = 7;		// in days
-	$scope.childName = "Curtis";
+	$scope.childName = "Loading...";
 	$scope.settings = {};
 	$scope.defaultSettings = {};
-	$scope.savingsBalance = 123;
-	$scope.chequingBalance = 123;
+	$scope.savingsBalance = 'Loading...';
+	$scope.chequingBalance = 'Loading...';
 	$scope.processing = {
 		allowance: false,
 		savingsRate: false,
 		loanRate: false,
 	}
+	$scope.savingsChart = {}
+	$scope.chequingsChart = {}
 
 	$scope.submitChange = function(value) {
 		// submit settings
@@ -49,8 +52,6 @@ app.controller('baseController', ['$scope', '$http', function($scope, $http) {
 				console.log('output: ', data)
 				if (data.success) {
 					$scope.defaultSettings[value] = $scope.settings[value]
-					console.log($scope.defaultSettings)
-					console.log($scope.settings)
 					alert('Change Successful!')
 				}
 				$scope.processing[value] = false
@@ -91,23 +92,44 @@ app.controller('baseController', ['$scope', '$http', function($scope, $http) {
 	    return clone;
 	}
 
-	$scope.chart = {
-	    labels : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-	    datasets : [
-	        {
-	            fillColor : "rgba(151,187,205,0)",
-	            strokeColor : "#e67e22",
-	            pointColor : "rgba(151,187,205,0)",
-	            pointStrokeColor : "#e67e22",
-	            data : [4, 3, 5, 4, 6]
-	        },
-	        {
-	            fillColor : "rgba(151,187,205,0)",
-	            strokeColor : "#f1c40f",
-	            pointColor : "rgba(151,187,205,0)",
-	            pointStrokeColor : "#f1c40f",
-	            data : [8, 3, 2, 5, 4]
-	        }
-	    ], 
+	$scope.getChart = function() {
+		$http.get('/account/savings/history/cfung').
+			success(function(data) {
+				console.log(data)
+				$scope.savingsChart = {
+				    labels : data.row,
+				    datasets : [
+				        {
+				        	scaleOverride: true,
+				            fillColor : "rgba(151,187,205,0)",
+				            strokeColor : "#e67e22",
+				            pointColor : "rgba(151,187,205,0)",
+				            pointStrokeColor : "#e67e22",
+				            data : data.amount,
+				            scaleStartValue: 0
+				        }
+				    ]
+				}
+		})
+		$http.get('/account/chequings/history/cfung').
+			success(function(data) {
+				console.log(data)
+				$scope.chequingsChart = {
+				    labels : data.row,
+				    datasets : [
+				        {
+				        	scaleOverride: true,
+				            fillColor : "rgba(151,187,205,0)",
+				            strokeColor : "#e67e22",
+				            pointColor : "rgba(151,187,205,0)",
+				            pointStrokeColor : "#e67e22",
+				            data : data.amount,
+				            scaleStartValue: 0
+				        }
+				    ]
+				}
+		})
 	};
+
+	$scope.getChart();
 }]);

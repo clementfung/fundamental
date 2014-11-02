@@ -236,6 +236,21 @@ def setAllowance():
         "success": True
         })
 
+@app.route('/account/savings/history/<venmo_name>', methods=['GET'])
+def getSavingsHistory(venmo_name):
+    return jsonify(**{
+        'row': ['10/5', '10/12', '10/19', '10/26', '11/2'],
+        'amount': [180, 185, 195, 200, 240]
+        })
+
+@app.route('/account/chequings/history/<venmo_name>', methods=['GET'])
+def getChequingsHistory(venmo_name):
+    return jsonify(**{
+        'row': ['10/5', '10/12', '10/19', '10/26', '11/2'],
+        'amount': [20, 50, 100, 70, 10]
+        })
+
+
 ### RUNNER ########################################
 
 if __name__ == '__main__':
