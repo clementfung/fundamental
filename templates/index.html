@@ -22,6 +22,7 @@
     <script src="/static/lib/angles.js"></script>
   </head>
   <body ng-controller="baseController">
+    <div id="background"></div>
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -31,13 +32,17 @@
     </nav>
     <div class="container">
         <div class="row">
-
-            <div class="page-header">
-                <h1>Parent Dashboard <small>for your child {{childName}}</small></h1>
+            <div class="jumbotron">
+                <h2>Welcome to the parent's dashboard!</h2>
+                <p>Thanks for choosing fundamental for your child's education in personal finance. In this dashboard, you can view your child's account history for savings and chequing. You can view/change their weekly allowance, saving rate and loan rate. Finally, you add custom investments opportunities to futher enhance your child's learning experience.</p>
             </div>
-            <h3>{{childName}}'s Accounts</h3>
+            <div class="page-header">
+                <h1>{{childName}}</h1>
+            </div>
+            <p> </p>
+            <h3>Accounts</h3>
             <ul>
-                <li><h4>Current Balance: <span style="color: green">{{savingsBalance | currency}}</span></h4></li>
+                <li><h4>Current Savings Balance: <span style="color: green">{{savingsBalance | currency}}</span></h4></li>
                 <li>
                     <h4>Savings Balance History:</h4>
                     <canvas class="cssSlideUp" linechart options="options" data="savingsChart" width="700" height="200" ng-hide="savingsChart == {}"></canvas>
@@ -47,6 +52,8 @@
                     <canvas class="cssSlideUp" linechart options="options" data="chequingsChart" width="700" height="200" ng-hide="chequingsChart == {}"></canvas>
                 </li>
             </ul>
+        </div>
+        <div class="row">
             <hr />
             <form name="allowanceForm">
                 <div class="form-group">
@@ -70,7 +77,7 @@
                     <ul>
                         <li>
                             <h4>
-                                <span ng-if="settings.savingsRate == defaultSettings.savingsRate">Weekly interest</span> 
+                                <span ng-if="settings.savingsRate == defaultSettings.savingsRate">Annual interest</span> 
                                 <span style="color:red" ng-if="settings.savingsRate != defaultSettings.savingsRate">New Weekly Interest</span>: <span style="color: green">{{savingsBalance * ((settings.savingsRate/100)/12) | currency}}</span>
                             </h4>
                         </li>
@@ -112,6 +119,52 @@
                     <span class="help-block">If your child wants to spend more than his/her allowance and savings, they have the choice to take a loan up to the next allowance amount, and decduct that amount from the next transaction. However, to encourage good spending habits, a deduction based on the loan rate will be applied, demonstrating the side effects of taking out a loan.</span>
                 </div>
             </form>
+        </div>
+        <div class="row">
+            <hr />
+            <h3>Investments</h3>
+            <button class="btn" ng-class="{'btn-success': !showInvestmentForm, 'btn-default': showInvestmentForm}" ng-click="showInvestmentForm = !showInvestmentForm" style="margin-bottom: 10px">
+                <span ng-if="!showInvestmentForm">New Investment</span>
+                <span ng-if="showInvestmentForm">Cancel</span>
+            </button>
+            <table class="table table-bordered table-hover" ng-if="investments.length != 0">
+                <tr>
+                    <th>Investment Name</th>
+                    <th>Rate</th>
+                    <th>Term</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                <tr ng-if="showInvestmentForm">
+                    <form name="investmentForm">
+                        <td><input class="form-control" type="text" placeholder="new investment" ng-model="newInvestment.name"></td>
+                        <td>
+                            <div class="input-group short-btn">
+                                <input class="form-control" type="number" min="0" max="100" placeholder="10" ng-model="newInvestment.rate">
+                                <div class="input-group-addon">%</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group short-btn">
+                                <input class="form-control" type="number" min="0" placeholder="30" ng-model="newInvestment.term_length">
+                                <div class="input-group-addon">days</div>
+                            </div>
+                        </td>
+                        <td></td>
+                        <td><button class="btn btn-success" ng-click="submitNewInvestment()"><span class="glyphicon glyphicon-plus"></span> Add</button></td>
+                    </form>
+                </tr>
+                <tr ng-repeat="investment in investments">
+                    <td>{{investment.name}}<dth>
+                    <td>{{investment.rate}}%</td>
+                    <td>{{investment.term_length/7 | number:0}} Weeks</td>
+                    <td>
+                        <span ng-if="!investment.is_purchased">Not </span>Purchased
+                    </td>
+                    <td><button class="btn btn-danger" ng-click="deleteInvestment(investment.investment_id)" ng-disabled="investment.is_purchased"><span class="glyphicon glyphicon-trash"></span> Delete</button></td>
+                </tr>
+            </table>
+            <p ng-if="investments.length == 0">No investments avaliable.</p>
         </div>
     </div>
   </body>
