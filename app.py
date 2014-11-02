@@ -188,7 +188,7 @@ def setSavingsInterest():
     else:        
         account_info = db.get_collection(account_collection_str)
         account_info.update({"user_id" : venmo_id}, 
-            {"$set": {"loan_interest_rate": rate}})
+            {"$set": {"savings_interest_rate": rate}})
     
     return jsonify(**{
         "success": True
