@@ -196,25 +196,28 @@ def addNewInvestment(venmo_id, name, term, rate):
         "is_purchased": False,
         })
  
-def addBoughtInvestment(investment_id, name, amount, end_date, final_amount):
+def addBoughtInvestment(user_id, investment_id, amount):
     new_investments_collection = db.get_collection(new_investments_str)
 
-    investment = new_investments_collection.update({'investment_id': investment_id},
+    new_investments_collection.update({'investment_id': investment_id},
                                                    {"$set": {"is_purchased" : True}})
+    investment = new_investments_collection.find_one({'investment_id': investment_id})
+
     bought_investments_collection = db.get_collection(bought_investments_str)
     bought_investments_collection.insert({
-        "name" : name,
-        "term_length": term,
-        "rate": rate,
-        "end_date": end_date,
-        "investment": investment,
-        "final_amount": final,
+        "name" : investment['name'],
+        "term_length": investment['term_length'],
+        "rate": investment['rate'],
+        "end_date": '2015-01-01',
+        "amount": amount,
+        "final_amount": amount*float(investment['rate']),
         "is_redeemed": False,
         "investment_id": investment_id,
+        "user_id": user_id,
         })
 
 @app.route('/account/investment/new', methods=['POST'])
-def setnewInvestment():
+def setNewInvestment():
     venmo_id = request.form['venmo_name']
     rate = float(request.form['rate'])
     name = request.form['name']
@@ -232,6 +235,30 @@ def setnewInvestment():
     return jsonify(**{
         "success": True
         })
+
+@app.route('/account/investment/current', methods=['POST'])
+def setCurrentInvestment():
+    venmo_id = request.form['venmo_name']
+    investment_id = request.form['investment_id']
+    amount = float(request.form['amount'])
+    
+    
+    # post as long as value is 0
+    if amount < 0:    
+        return jsonify(**{
+            "success": False
+            })
+
+    else:        
+        addBoughtInvestment(venmo_id, 
+                            investment_id, 
+                            amount,
+                            )
+    
+    return jsonify(**{
+        "success": True
+        })
+
 
 
 
