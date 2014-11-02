@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 import db
 import venmo
 import uuid
-
+import util
 DEBUG = True
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -202,15 +202,17 @@ def addBoughtInvestment(user_id, investment_id, amount):
     new_investments_collection.update({'investment_id': investment_id},
                                                    {"$set": {"is_purchased" : True}})
     investment = new_investments_collection.find_one({'investment_id': investment_id})
+    term_length = int(investment['term_length'])
+    rate = float(investment['rate'])
 
     bought_investments_collection = db.get_collection(bought_investments_str)
     bought_investments_collection.insert({
         "name" : investment['name'],
-        "term_length": investment['term_length'],
+        "term_length": term_length,
         "rate": investment['rate'],
-        "end_date": '2015-01-01',
+        "end_date": util.add_months_to_today(term_length),
         "amount": amount,
-        "final_amount": amount*float(investment['rate']),
+        "final_amount": util.calculate_investment(rate, term_length, amount), 
         "is_redeemed": False,
         "investment_id": investment_id,
         "user_id": user_id,
@@ -236,7 +238,7 @@ def setNewInvestment():
         "success": True
         })
 
-@app.route('/account/investment/new', methods=['DELETE'])
+@app.route('/account/investment/delete', methods=['DELETE'])
 def deleteNewInvestment():
     investment_id = request.form['investment_id']
 
