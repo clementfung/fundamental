@@ -18,5 +18,12 @@ def get_collection(coll_name):
 
 def test_connection():
     coll = get_collection('test')
-    coll.insert({"name":"testiiiing"})
+    coll.insert({"name":"testing1"})
+    res = find_one('test', {'name':'testing1'})
+    return res
 
+#### PUBLIC FUNCTIONS
+
+def find_one(coll_name, query):
+    coll = get_collection(coll_name)
+    return coll.find_one(query)
